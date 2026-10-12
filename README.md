@@ -2,6 +2,8 @@
 
 Firefox-Add-on, das auf Reddit nur Text-Posts zeigt. Bilder, Videos, Galerien und Werbung werden ausgeblendet.
 
+**Installieren:** [Reddit – Nur Text bei addons.mozilla.org](https://addons.mozilla.org/de/firefox/addon/reddit-nur-text/)
+
 ## Funktionen
 
 - **Filter:** nur Text-Posts (optional auch Link-Posts), keine Bilder, Videos, Galerien oder Werbung
