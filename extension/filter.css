@@ -1,0 +1,69 @@
+/* ===== Neues Reddit (www.reddit.com, "shreddit") ===== */
+
+/* Strenger Modus: alles außer Text-Posts ausblenden */
+html[data-rto="strict"] shreddit-post:not([post-type="text"]),
+html[data-rto="strict"] article:has(> shreddit-post:not([post-type="text"])),
+html[data-rto="strict"] article:has(> shreddit-post:not([post-type="text"])) + hr,
+/* Link-Modus: Text- und Link-Posts erlauben, Medien ausblenden */
+html[data-rto="links"] shreddit-post:not([post-type="text"]):not([post-type="link"]),
+html[data-rto="links"] article:has(> shreddit-post:not([post-type="text"]):not([post-type="link"])),
+html[data-rto="links"] article:has(> shreddit-post:not([post-type="text"]):not([post-type="link"])) + hr,
+/* Werbung (ist sowieso meistens Bild/Video) */
+html:is([data-rto="strict"], [data-rto="links"]) shreddit-ad-post,
+html:is([data-rto="strict"], [data-rto="links"]) article:has(> shreddit-ad-post),
+html:is([data-rto="strict"], [data-rto="links"]) article:has(> shreddit-ad-post) + hr {
+  display: none !important;
+}
+
+/* ===== Altes Reddit (old.reddit.com) ===== */
+
+/* Strenger Modus: nur Self-Posts (= Text-Posts) */
+html[data-rto="strict"] #siteTable > .thing.link:not(.self),
+/* Link-Modus: Posts auf bekannte Bild-/Video-Hoster ausblenden */
+html[data-rto="links"] #siteTable > .thing.link:is(
+  [data-domain="i.redd.it"],
+  [data-domain="v.redd.it"],
+  [data-domain="reddit.com"],
+  [data-domain*="imgur"],
+  [data-domain*="youtube"],
+  [data-domain="youtu.be"],
+  [data-domain*="gfycat"],
+  [data-domain*="redgifs"],
+  [data-domain*="streamable"],
+  [data-domain*="giphy"],
+  [data-domain*="tenor"]
+),
+html:is([data-rto="strict"], [data-rto="links"]) #siteTable > .thing.promoted {
+  display: none !important;
+}
+
+/* ===== Werbung überall (Seitenleiste, Kommentare, Banner) ===== */
+
+/* Neues Reddit */
+html:is([data-rto="strict"], [data-rto="links"]) :is(
+  shreddit-ad-post,
+  shreddit-sidebar-ad,
+  shreddit-comments-page-ad,
+  shreddit-comment-tree-ad,
+  shreddit-dynamic-ad-link,
+  [data-testid="ad-unit"],
+  [id^="ad-"]:not(input, textarea),
+  .promotedlink,
+  .promoted-post
+),
+/* Altes Reddit */
+html:is([data-rto="strict"], [data-rto="links"]) :is(
+  .thing.promoted,
+  .thing.promotedlink,
+  #ad_main,
+  .ad-container,
+  .sidebar-ad,
+  .side .spacer:has(> #ad_main, > .ad-container)
+),
+/* Falls irgendwo doch noch eine Anzeige durchrutscht: Bilder/Videos darin weg */
+html:is([data-rto="strict"], [data-rto="links"]) :is(
+  shreddit-ad-post, shreddit-sidebar-ad, shreddit-comments-page-ad,
+  shreddit-comment-tree-ad, .promotedlink, .thing.promoted
+) :is(img, video, picture, iframe, shreddit-player, shreddit-aspect-ratio) {
+  display: none !important;
+}

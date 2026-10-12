@@ -1,0 +1,89 @@
+/* ===== Minimal-Ansicht: alles außer den Posts selbst ausblenden ===== */
+
+/* ---------- Neues Reddit (www.reddit.com) ---------- */
+
+/* Linke Navigation und rechte Seitenleiste */
+html[data-rto-min] :is(
+  flex-left-nav-container,
+  #flex-left-nav-container,
+  #left-sidebar-container,
+  reddit-sidebar-nav,
+  #right-sidebar-container,
+  #right-sidebar-contents
+),
+/* Reddit-Logos (Symbol + Schriftzug) und Anmelden-Knopf oben */
+html[data-rto-min] :is(
+  #reddit-logo,
+  reddit-header-large a[href="/"],
+  reddit-header-small a[href="/"],
+  #login-button,
+  reddit-header-large a[href*="/login"],
+  reddit-header-small a[href*="/login"],
+  faceplate-tracker[noun="login"]
+),
+/* Subreddit-Icons, Avatare und Beitreten-Knopf */
+html[data-rto-min] :is(
+  shreddit-join-button,
+  shreddit-subreddit-icon,
+  .shreddit-subreddit-icon__icon,
+  shreddit-post [slot="credit-bar"] :is(img, faceplate-img, svg[icon-name="community-fill"], svg[icon-name="community"]),
+  shreddit-post [slot="authorAvatar"]
+),
+/* Emojis in Flairs */
+html[data-rto-min] :is(shreddit-post-flair, author-flair-event-handler, .flair) :is(img, faceplate-img),
+/* Aktionsleiste, falls sie im normalen DOM liegt */
+html[data-rto-min] shreddit-post > :is(
+  [slot="share-button"],
+  [slot="comment-button"],
+  [slot="award-button"],
+  [slot="vote-button"],
+  award-button,
+  shreddit-post-share-button
+) {
+  display: none !important;
+}
+
+/* Feed mittig in voller Breite statt drei Spalten */
+html[data-rto-min] :is(.grid-container, .main-container, .subgrid-container) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+html[data-rto-min] :is(.main-container, #main-content) {
+  max-width: 800px !important;
+  margin-inline: auto !important;
+}
+
+/* Überschriften so groß wie der Text */
+html[data-rto-min] shreddit-post :is([slot="title"], [id^="post-title-"]),
+html[data-rto-min] h1[slot="title"] {
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+
+/* Punkte und Kommentare als kleiner Text (von content.js eingefügt) */
+.rto-meta { display: none; }
+html[data-rto-min] .rto-meta {
+  display: block;
+  font-size: 12px;
+  opacity: .65;
+  margin: 2px 16px 8px;
+}
+html[data-rto-min] .rto-meta a { color: inherit; text-decoration: none; }
+html[data-rto-min] .rto-meta a:hover { text-decoration: underline; }
+
+/* ---------- Altes Reddit (old.reddit.com) ---------- */
+
+html[data-rto-min] :is(
+  .side,                     /* rechte Seitenleiste */
+  #header-img, #header-img-a, /* Logo */
+  #header-bottom-right,      /* Anmelden */
+  .thing .midcol,            /* Up-/Downvote + Punkte */
+  .thing .thumbnail,
+  .thing .flat-list.buttons, /* Kommentare, Teilen, Speichern … */
+  .flairemoji,
+  .linkflairlabel img
+) {
+  display: none !important;
+}
+html[data-rto-min] .content[role="main"] { margin-right: 5px !important; }
+html[data-rto-min] .thing .title a.title { font-size: 14px !important; }
+html[data-rto-min] .thing .rto-meta { margin: 2px 0 0; }
