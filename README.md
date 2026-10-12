@@ -32,4 +32,4 @@ Firefox-Add-on, das auf Reddit nur Text-Posts zeigt. Bilder, Videos, Galerien un
 3. Auf addons.mozilla.org beim Add-on „Neue Version hochladen“ → „Auf eigene Faust“
 4. Signierte Datei herunterladen und installieren bzw. weitergeben
 
-Add-on-ID: `{e982fec8-13bb-4b6f-8ae3-078fb425159a}`
+Add-on-ID: `reddit-nur-text@local`
