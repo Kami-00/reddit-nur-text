@@ -11,15 +11,11 @@ html[data-rto-min] :is(
   #right-sidebar-container,
   #right-sidebar-contents
 ),
-/* Reddit-Logos (Symbol + Schriftzug) und Anmelden-Knopf oben */
+/* Reddit-Logos (Symbol + Schriftzug) oben */
 html[data-rto-min] :is(
   #reddit-logo,
   reddit-header-large a[href="/"],
-  reddit-header-small a[href="/"],
-  #login-button,
-  reddit-header-large a[href*="/login"],
-  reddit-header-small a[href*="/login"],
-  faceplate-tracker[noun="login"]
+  reddit-header-small a[href="/"]
 ),
 /* Subreddit-Icons, Avatare und Beitreten-Knopf */
 html[data-rto-min] :is(
@@ -43,11 +39,17 @@ html[data-rto-min] shreddit-post > :is(
   display: none !important;
 }
 
-/* Feed mittig in voller Breite statt drei Spalten */
-html[data-rto-min] :is(.grid-container, .main-container, .subgrid-container) {
-  grid-template-columns: minmax(0, 1fr) !important;
+/* Feed mittig: die Spalten-Layouts um den Feed herum auflösen, damit kein
+   Platz für die ausgeblendeten Seitenleisten reserviert bleibt */
+html[data-rto-min] body :has(#main-content) {
+  display: block !important;
+  margin-inline: 0 !important;
+  padding-inline: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  transform: none !important;
 }
-html[data-rto-min] :is(.main-container, #main-content) {
+html[data-rto-min] #main-content {
   max-width: 800px !important;
   margin-inline: auto !important;
 }
@@ -59,7 +61,7 @@ html[data-rto-min] h1[slot="title"] {
   line-height: 20px !important;
 }
 
-/* Punkte und Kommentare als kleiner Text (von content.js eingefügt) */
+/* Upvotes und Kommentare als kleiner Text (von content.js eingefügt) */
 .rto-meta { display: none; }
 html[data-rto-min] .rto-meta {
   display: block;
@@ -68,6 +70,12 @@ html[data-rto-min] .rto-meta {
   margin: 2px 16px 8px;
 }
 html[data-rto-min] .rto-meta a { color: inherit; text-decoration: none; }
+html[data-rto-min] .rto-meta svg {
+  height: 1em;
+  width: auto;
+  vertical-align: -0.125em;
+  fill: currentColor;
+}
 html[data-rto-min] .rto-meta a:hover { text-decoration: underline; }
 
 /* ---------- Altes Reddit (old.reddit.com) ---------- */
@@ -75,7 +83,6 @@ html[data-rto-min] .rto-meta a:hover { text-decoration: underline; }
 html[data-rto-min] :is(
   .side,                     /* rechte Seitenleiste */
   #header-img, #header-img-a, /* Logo */
-  #header-bottom-right,      /* Anmelden */
   .thing .midcol,            /* Up-/Downvote + Punkte */
   .thing .thumbnail,
   .thing .flat-list.buttons, /* Kommentare, Teilen, Speichern … */

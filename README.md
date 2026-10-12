@@ -7,7 +7,7 @@ Firefox-Add-on, das auf Reddit nur Text-Posts zeigt. Bilder, Videos, Galerien un
 ## Funktionen
 
 - **Filter:** nur Text-Posts (optional auch Link-Posts), keine Bilder, Videos, Galerien oder Werbung
-- **Minimal-Ansicht:** keine Seitenleisten, Logos, Anmelden-Knopf, Subreddit-Icons, Beitreten-Knopf, Flair-Emojis und Vote-/Kommentar-/Teilen-Knöpfe; Überschriften so groß wie der Text; Punkte und Kommentare als kleine Textzeile
+- **Minimal-Ansicht:** keine Seitenleisten, Logos, Subreddit-Icons, Beitreten-Knopf, Flair-Emojis und Vote-/Kommentar-/Teilen-Knöpfe; Überschriften so groß wie der Text; Upvotes (↑) und Kommentare als kleine Textzeile
 - Funktioniert auf www.reddit.com und old.reddit.com
 - Alles einzeln schaltbar über das Symbol in der Symbolleiste
 

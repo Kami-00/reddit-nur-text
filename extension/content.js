@@ -30,12 +30,25 @@ api.storage.onChanged.addListener(() =>
 
 const fmt = (n) => Number(n || 0).toLocaleString("de-DE");
 
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// Pfeil nach oben, so hoch wie der Text und in Textfarbe (siehe minimal.css)
+function upArrow() {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-label", "Upvotes");
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", "M8 1 2 8h4v7h4V8h4z");
+  svg.append(path);
+  return svg;
+}
+
 function metaLine(score, comments, href) {
   const div = document.createElement("div");
   div.className = "rto-meta";
   const a = document.createElement("a");
   a.href = href || "#";
-  a.textContent = `${fmt(score)} Punkte · ${fmt(comments)} Kommentare`;
+  a.append(upArrow(), ` ${fmt(score)} · ${fmt(comments)} Kommentare`);
   div.append(a);
   return div;
 }
