@@ -26,7 +26,8 @@ html[data-rto-min] :is(
   shreddit-post [slot="authorAvatar"]
 ),
 /* Profilbilder bei Kommentaren */
-html[data-rto-min] shreddit-comment > [slot="commentAvatar"],
+html[data-rto-min] [slot="commentAvatar"],
+html[data-rto-min] [slot="commentAvatar"] *,
 /* Subreddit-Icon in der Suchleiste, falls es im normalen DOM liegt */
 html[data-rto-min] :is(reddit-search-large, reddit-search-small) :is(img, faceplate-img, shreddit-subreddit-icon),
 /* Emojis in Flairs */

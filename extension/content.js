@@ -15,7 +15,7 @@ const SHADOW_CSS = {
     slot[name="share-button"], slot[name="comment-button"], slot[name="award-button"],
     faceplate-number ${HIDE}`,
   // Profilbilder bei Kommentaren
-  "shreddit-comment": `slot[name="commentAvatar"] ${HIDE}`,
+  "shreddit-comment": `slot[name="commentAvatar"], [slot="commentAvatar"], [slot="commentAvatar"] * ${HIDE}`,
   // Subreddit-Icon in der Suchleiste (auf Subreddit- und Post-Seiten)
   "reddit-search-large, reddit-search-small, faceplate-search-input, search-dynamic-id-cache-controller":
     `img, faceplate-img, shreddit-subreddit-icon ${HIDE}`,
@@ -106,8 +106,26 @@ function scanIn(node) {
   node.querySelectorAll(SHADOW_HOSTS).forEach(styleShadow);
 }
 
+// Kommentare mit Bildern oder Videos eingeklappt anzeigen (wenn der Filter an ist).
+// Nur der eigene Text zählt, nicht Antworten oder das Profilbild.
+const MEDIA = "img, video, shreddit-player, shreddit-player-2, figure";
+
+function collapseMediaComment(comment) {
+  if (comment.dataset.rtoCollapsed || !settings.enabled) return;
+  const body = comment.querySelector(':scope > [slot="comment"]');
+  if (!body?.querySelector(MEDIA)) return;
+  const sr = comment.openOrClosedShadowRoot ?? comment.shadowRoot;
+  const details =
+    comment.querySelector(":scope > details") ?? sr?.querySelector("details");
+  if (!details) return; // noch nicht gerendert, beim nächsten Durchlauf erneut
+  comment.dataset.rtoCollapsed = "1"; // nur einmal, damit Aufklappen per Klick bleibt
+  comment.setAttribute("collapsed", "");
+  details.removeAttribute("open");
+}
+
 function scan() {
   scanIn(document);
+  document.querySelectorAll("shreddit-comment:not([data-rto-collapsed])").forEach(collapseMediaComment);
   document.querySelectorAll("shreddit-post").forEach(addMeta);
   document.querySelectorAll("#siteTable > .thing.link:not([data-rto-meta])").forEach(processOldReddit);
 }
