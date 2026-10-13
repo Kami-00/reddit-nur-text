@@ -67,3 +67,24 @@ html:is([data-rto="strict"], [data-rto="links"]) :is(
 ) :is(img, video, picture, iframe, shreddit-player, shreddit-aspect-ratio) {
   display: none !important;
 }
+
+/* ===== Kommentare mit Bildern oder Videos (von content.js markiert) ===== */
+
+.rto-show { display: none; }
+html:is([data-rto="strict"], [data-rto="links"]) [data-rto-hidden] {
+  display: none !important;
+}
+html:is([data-rto="strict"], [data-rto="links"]) .rto-show {
+  display: block;
+  margin: 2px 0 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-style: italic;
+  opacity: .65;
+  cursor: pointer;
+}
+html:is([data-rto="strict"], [data-rto="links"]) .rto-show:hover { text-decoration: underline; }

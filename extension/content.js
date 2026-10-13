@@ -106,26 +106,39 @@ function scanIn(node) {
   node.querySelectorAll(SHADOW_HOSTS).forEach(styleShadow);
 }
 
-// Kommentare mit Bildern oder Videos eingeklappt anzeigen (wenn der Filter an ist).
-// Nur der eigene Text zählt, nicht Antworten oder das Profilbild.
+// Kommentare mit Bildern oder Videos einklappen – auf jeder Ebene, aber nur den
+// Kommentar selbst. Antworten darunter bleiben sichtbar. Ein Klick auf den
+// Hinweis zeigt den Kommentar wieder an.
 const MEDIA = "img, video, shreddit-player, shreddit-player-2, figure";
+const NOT_CONTENT = '[slot="commentAvatar"], [slot="commentMeta"], author-flair-event-handler';
 
 function collapseMediaComment(comment) {
-  if (comment.dataset.rtoCollapsed || !settings.enabled) return;
-  const body = comment.querySelector(':scope > [slot="comment"]');
-  if (!body?.querySelector(MEDIA)) return;
-  const sr = comment.openOrClosedShadowRoot ?? comment.shadowRoot;
-  const details =
-    comment.querySelector(":scope > details") ?? sr?.querySelector("details");
-  if (!details) return; // noch nicht gerendert, beim nächsten Durchlauf erneut
-  comment.dataset.rtoCollapsed = "1"; // nur einmal, damit Aufklappen per Klick bleibt
-  comment.setAttribute("collapsed", "");
-  details.removeAttribute("open");
+  for (const el of comment.querySelectorAll(MEDIA)) {
+    // Medien von Antworten, Profilbild und Flair zählen nicht
+    if (el.closest("shreddit-comment") !== comment || el.closest(NOT_CONTENT)) continue;
+    // Das direkte Kind des Kommentars finden, das die Medien enthält
+    let part = el;
+    while (part.parentElement !== comment) part = part.parentElement;
+    if (part.hasAttribute("data-rto-hidden") || part.hasAttribute("data-rto-shown")) continue;
+    part.setAttribute("data-rto-hidden", "");
+    const btn = document.createElement("button");
+    btn.className = "rto-show";
+    btn.type = "button";
+    btn.slot = part.slot; // landet an derselben Stelle wie der Kommentartext
+    btn.textContent = "Kommentar mit Bild/Video ausgeblendet – anzeigen";
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      part.removeAttribute("data-rto-hidden");
+      part.setAttribute("data-rto-shown", "");
+      btn.remove();
+    });
+    part.before(btn);
+  }
 }
 
 function scan() {
   scanIn(document);
-  document.querySelectorAll("shreddit-comment:not([data-rto-collapsed])").forEach(collapseMediaComment);
+  document.querySelectorAll("shreddit-comment").forEach(collapseMediaComment);
   document.querySelectorAll("shreddit-post").forEach(addMeta);
   document.querySelectorAll("#siteTable > .thing.link:not([data-rto-meta])").forEach(processOldReddit);
 }
