@@ -25,6 +25,10 @@ html[data-rto-min] :is(
   shreddit-post [slot="credit-bar"] :is(img, faceplate-img, svg[icon-name="community-fill"], svg[icon-name="community"]),
   shreddit-post [slot="authorAvatar"]
 ),
+/* Profilbilder bei Kommentaren */
+html[data-rto-min] shreddit-comment > [slot="commentAvatar"],
+/* Subreddit-Icon in der Suchleiste, falls es im normalen DOM liegt */
+html[data-rto-min] :is(reddit-search-large, reddit-search-small) :is(img, faceplate-img, shreddit-subreddit-icon),
 /* Emojis in Flairs */
 html[data-rto-min] :is(shreddit-post-flair, author-flair-event-handler, .flair) :is(img, faceplate-img),
 /* Aktionsleiste, falls sie im normalen DOM liegt */
