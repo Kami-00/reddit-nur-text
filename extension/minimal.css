@@ -46,7 +46,7 @@ html[data-rto-min] shreddit-post > :is(
 
 /* Feed mittig: die Spalten-Layouts um den Feed herum auflösen, damit kein
    Platz für die ausgeblendeten Seitenleisten reserviert bleibt */
-html[data-rto-min] body :has(#main-content) {
+html[data-rto-min] [data-rto-wrap] { /* von content.js gesetzt */
   display: block !important;
   margin-inline: 0 !important;
   padding-inline: 0 !important;

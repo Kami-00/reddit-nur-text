@@ -1,17 +1,18 @@
 /* ===== Neues Reddit (www.reddit.com, "shreddit") ===== */
 
-/* Strenger Modus: alles außer Text-Posts ausblenden */
+/* Strenger Modus: alles außer Text-Posts ausblenden.
+   data-rto-post setzt content.js am <article> (statt teurem :has()). */
 html[data-rto="strict"] shreddit-post:not([post-type="text"]),
-html[data-rto="strict"] article:has(> shreddit-post:not([post-type="text"])),
-html[data-rto="strict"] article:has(> shreddit-post:not([post-type="text"])) + hr,
+html[data-rto="strict"] article[data-rto-post]:not([data-rto-post="text"]),
+html[data-rto="strict"] article[data-rto-post]:not([data-rto-post="text"]) + hr,
 /* Link-Modus: Text- und Link-Posts erlauben, Medien ausblenden */
 html[data-rto="links"] shreddit-post:not([post-type="text"]):not([post-type="link"]),
-html[data-rto="links"] article:has(> shreddit-post:not([post-type="text"]):not([post-type="link"])),
-html[data-rto="links"] article:has(> shreddit-post:not([post-type="text"]):not([post-type="link"])) + hr,
+html[data-rto="links"] article[data-rto-post]:not([data-rto-post="text"], [data-rto-post="link"]),
+html[data-rto="links"] article[data-rto-post]:not([data-rto-post="text"], [data-rto-post="link"]) + hr,
 /* Werbung (ist sowieso meistens Bild/Video) */
 html:is([data-rto="strict"], [data-rto="links"]) shreddit-ad-post,
-html:is([data-rto="strict"], [data-rto="links"]) article:has(> shreddit-ad-post),
-html:is([data-rto="strict"], [data-rto="links"]) article:has(> shreddit-ad-post) + hr {
+html:is([data-rto="strict"], [data-rto="links"]) article[data-rto-post="ad"],
+html:is([data-rto="strict"], [data-rto="links"]) article[data-rto-post="ad"] + hr {
   display: none !important;
 }
 

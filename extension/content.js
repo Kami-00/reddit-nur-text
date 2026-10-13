@@ -63,47 +63,76 @@ function metaLine(score, comments, href) {
   return div;
 }
 
-const observed = new WeakSet();
+// ---------------------------------------------------------------------------
+// Bearbeitung der Seite. Jedes Element wird nur einmal angefasst; nach dem
+// Laden werden nur neu eingefügte Teile der Seite durchsucht, nicht alles.
+// ---------------------------------------------------------------------------
+
+const styled = new WeakSet(); // Shadow DOM hat schon unsere Styles
+const handled = new WeakSet(); // Post/Medien schon bearbeitet
+const tries = new WeakMap();
+const NESTED_HOSTS = "reddit-search-large, reddit-search-small";
 
 function styleShadow(host) {
+  if (styled.has(host)) return;
   const sr = host.openOrClosedShadowRoot ?? host.shadowRoot;
-  if (!sr) return;
-  if (!sr.querySelector(":scope > style[data-rto]")) {
-    const css = Object.entries(SHADOW_CSS)
-      .filter(([sel]) => host.matches(sel))
-      .map(([, c]) => c)
-      .join("\n");
-    const st = document.createElement("style");
-    st.dataset.rto = "";
-    st.textContent = css;
-    st.media = root.hasAttribute("data-rto-min") ? "all" : "not all";
-    sr.append(st);
-    shadowStyles.add(st);
+  if (!sr) {
+    // Element noch nicht fertig aufgebaut: ein paarmal später erneut versuchen
+    const n = tries.get(host) ?? 0;
+    if (n < 3) {
+      tries.set(host, n + 1);
+      setTimeout(() => styleShadow(host), 200 * 3 ** n);
+    }
+    return;
   }
-  // Verschachtelte Elemente (z. B. Suchfeld in der Suchleiste) liegen im Shadow DOM
-  scanIn(sr);
-  if (!observed.has(sr)) {
-    observed.add(sr);
+  styled.add(host);
+  const css = Object.entries(SHADOW_CSS)
+    .filter(([sel]) => host.matches(sel))
+    .map(([, c]) => c)
+    .join("\n");
+  const st = document.createElement("style");
+  st.dataset.rto = "";
+  st.textContent = css;
+  st.media = root.hasAttribute("data-rto-min") ? "all" : "not all";
+  sr.append(st);
+  shadowStyles.add(st);
+  if (shadowStyles.size % 500 === 0) {
+    for (const s of shadowStyles) if (!s.isConnected) shadowStyles.delete(s);
+  }
+  // Nur die Suchleiste hat weitere Reddit-Elemente in ihrem Shadow DOM
+  if (host.matches(NESTED_HOSTS)) {
+    processTree(sr);
     observer.observe(sr, { childList: true, subtree: true });
   }
 }
 
-function addMeta(post) {
-  if (!post.dataset.rtoMeta && post.hasAttribute("score")) {
-    post.dataset.rtoMeta = "1";
+function processPost(post) {
+  if (handled.has(post)) return;
+  handled.add(post);
+  // Umgebendes <article> markieren, damit filter.css es ohne :has() ausblenden kann
+  const article = post.parentElement;
+  if (article?.localName === "article") {
+    article.dataset.rtoPost =
+      post.localName === "shreddit-ad-post" ? "ad" : post.getAttribute("post-type") || "";
+  }
+  if (post.hasAttribute("score")) {
     post.after(metaLine(post.getAttribute("score"), post.getAttribute("comment-count"), post.getAttribute("permalink")));
   }
 }
 
 function processOldReddit(thing) {
-  if (thing.dataset.rtoMeta) return;
-  thing.dataset.rtoMeta = "1";
+  if (handled.has(thing)) return;
+  handled.add(thing);
   const tagline = thing.querySelector(".entry .tagline");
   tagline?.after(metaLine(thing.dataset.score, thing.dataset.commentsCount, thing.dataset.permalink));
 }
 
-function scanIn(node) {
-  node.querySelectorAll(SHADOW_HOSTS).forEach(styleShadow);
+// Elemente um den Feed herum markieren, damit minimal.css ihr Spalten-Layout
+// ohne das teure body :has(#main-content) auflösen kann
+function markLayout(main) {
+  for (let el = main.parentElement; el && el !== document.body; el = el.parentElement) {
+    el.setAttribute("data-rto-wrap", "");
+  }
 }
 
 // Kommentare mit Bildern oder Videos einklappen – auf jeder Ebene, aber nur den
@@ -112,41 +141,87 @@ function scanIn(node) {
 const MEDIA = "img, video, shreddit-player, shreddit-player-2, figure";
 const NOT_CONTENT = '[slot="commentAvatar"], [slot="commentMeta"], author-flair-event-handler';
 
-function collapseMediaComment(comment) {
-  for (const el of comment.querySelectorAll(MEDIA)) {
-    // Medien von Antworten, Profilbild und Flair zählen nicht
-    if (el.closest("shreddit-comment") !== comment || el.closest(NOT_CONTENT)) continue;
-    // Das direkte Kind des Kommentars finden, das die Medien enthält
-    let part = el;
-    while (part.parentElement !== comment) part = part.parentElement;
-    if (part.hasAttribute("data-rto-hidden") || part.hasAttribute("data-rto-shown")) continue;
-    part.setAttribute("data-rto-hidden", "");
-    const btn = document.createElement("button");
-    btn.className = "rto-show";
-    btn.type = "button";
-    btn.slot = part.slot; // landet an derselben Stelle wie der Kommentartext
-    btn.textContent = "Kommentar mit Bild/Video ausgeblendet – anzeigen";
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      part.removeAttribute("data-rto-hidden");
-      part.setAttribute("data-rto-shown", "");
-      btn.remove();
-    });
-    part.before(btn);
+function hideMediaInComment(el) {
+  if (handled.has(el)) return;
+  handled.add(el);
+  const comment = el.closest("shreddit-comment");
+  if (!comment || el.closest(NOT_CONTENT)) return;
+  // Das direkte Kind des Kommentars finden, das die Medien enthält
+  let part = el;
+  while (part.parentElement !== comment) part = part.parentElement;
+  if (part.hasAttribute("data-rto-hidden") || part.hasAttribute("data-rto-shown")) return;
+  part.setAttribute("data-rto-hidden", "");
+  const btn = document.createElement("button");
+  btn.className = "rto-show";
+  btn.type = "button";
+  btn.slot = part.slot; // landet an derselben Stelle wie der Kommentartext
+  btn.textContent = "Kommentar mit Bild/Video ausgeblendet – anzeigen";
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    part.removeAttribute("data-rto-hidden");
+    part.setAttribute("data-rto-shown", "");
+    btn.remove();
+  });
+  part.before(btn);
+}
+
+function each(node, selector, fn) {
+  if (node.nodeType === Node.ELEMENT_NODE && node.matches(selector)) fn(node);
+  node.querySelectorAll(selector).forEach(fn);
+}
+
+function processTree(node) {
+  each(node, SHADOW_HOSTS, styleShadow);
+  each(node, "shreddit-post, shreddit-ad-post", processPost);
+  each(node, MEDIA, hideMediaInComment);
+  each(node, "#siteTable > .thing.link", processOldReddit);
+  each(node, "#main-content", markLayout);
+}
+
+// Eigene Einfügungen lösen keine neue Bearbeitung aus
+const isOwn = (n) =>
+  n.nodeType !== Node.ELEMENT_NODE ||
+  n.classList.contains("rto-meta") ||
+  n.classList.contains("rto-show") ||
+  n.hasAttribute("data-rto");
+
+let loading = document.readyState === "loading";
+const pending = new Set();
+let scheduled = false;
+
+function flush() {
+  scheduled = false;
+  if (loading) {
+    processTree(document);
+  } else {
+    for (const n of pending) if (n.isConnected) processTree(n);
   }
+  pending.clear();
 }
 
-function scan() {
-  scanIn(document);
-  document.querySelectorAll("shreddit-comment").forEach(collapseMediaComment);
-  document.querySelectorAll("shreddit-post").forEach(addMeta);
-  document.querySelectorAll("#siteTable > .thing.link:not([data-rto-meta])").forEach(processOldReddit);
+function schedule() {
+  if (scheduled) return;
+  scheduled = true;
+  // Während des Ladens höchstens alle 150 ms die ganze Seite, danach pro Frame nur Neues
+  if (loading) setTimeout(flush, 150);
+  else requestAnimationFrame(flush);
 }
 
-let queued = false;
-const observer = new MutationObserver(() => {
-  if (queued) return;
-  queued = true;
-  requestAnimationFrame(() => { queued = false; scan(); });
+const observer = new MutationObserver((records) => {
+  if (!loading) {
+    for (const r of records) for (const n of r.addedNodes) if (!isOwn(n)) pending.add(n);
+    if (!pending.size) return;
+  }
+  schedule();
 });
 observer.observe(root, { childList: true, subtree: true });
+
+if (loading) {
+  document.addEventListener("DOMContentLoaded", () => {
+    loading = false;
+    pending.clear();
+    processTree(document);
+  }, { once: true });
+} else {
+  processTree(document);
+}
