@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "w3-reporting.reddit.com",
+        "w3-reporting-nel.reddit.com",
+        "error-tracking.reddit.com",
+        "events.reddit.com",
+        "events.redditmedia.com",
+        "alb.reddit.com",
+        "pixel.redditmedia.com"
+      ],
+      "initiatorDomains": [
+        "reddit.com"
+      ],
+      "resourceTypes": [
+        "xmlhttprequest",
+        "ping",
+        "script",
+        "image",
+        "other"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "regexFilter": "^https://[a-z]+.reddit.com/svc/shreddit/(events|perfMetrics)",
+      "initiatorDomains": [
+        "reddit.com"
+      ],
+      "resourceTypes": [
+        "xmlhttprequest",
+        "ping",
+        "other"
+      ]
+    }
+  }
+]

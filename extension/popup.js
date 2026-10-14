@@ -1,5 +1,5 @@
 const api = globalThis.browser ?? globalThis.chrome;
-const DEFAULTS = { enabled: true, allowLinks: false, minimal: true };
+const DEFAULTS = { enabled: true, allowLinks: false, minimal: true, blockMedia: true, blockTracking: true };
 
 api.storage.local.get(DEFAULTS).then((s) => {
   for (const key of Object.keys(DEFAULTS)) {

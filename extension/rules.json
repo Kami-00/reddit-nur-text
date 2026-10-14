@@ -1,0 +1,94 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "i.redd.it",
+        "preview.redd.it",
+        "v.redd.it",
+        "external-preview.redd.it",
+        "styles.redditmedia.com",
+        "emoji.redditmedia.com",
+        "a.thumbs.redditmedia.com",
+        "b.thumbs.redditmedia.com",
+        "i.imgur.com",
+        "imgur.com",
+        "i.giphy.com",
+        "media.giphy.com"
+      ],
+      "initiatorDomains": [
+        "reddit.com"
+      ],
+      "resourceTypes": [
+        "image",
+        "media",
+        "xmlhttprequest",
+        "object",
+        "other"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "||www.redditstatic.com/avatars/",
+      "initiatorDomains": [
+        "reddit.com"
+      ],
+      "resourceTypes": [
+        "image"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "requestDomains": [
+        "youtube.com",
+        "youtube-nocookie.com",
+        "ytimg.com",
+        "googlevideo.com",
+        "twitter.com",
+        "x.com",
+        "twimg.com",
+        "streamable.com",
+        "redgifs.com",
+        "gfycat.com",
+        "vimeo.com",
+        "vimeocdn.com",
+        "tiktok.com",
+        "instagram.com",
+        "cdninstagram.com",
+        "embedly.com",
+        "embed.ly",
+        "www.redditmedia.com"
+      ],
+      "initiatorDomains": [
+        "reddit.com"
+      ],
+      "resourceTypes": [
+        "sub_frame",
+        "script",
+        "image",
+        "media",
+        "xmlhttprequest",
+        "object",
+        "stylesheet",
+        "font",
+        "other"
+      ]
+    }
+  }
+]

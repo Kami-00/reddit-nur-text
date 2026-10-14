@@ -1,5 +1,5 @@
 const api = globalThis.browser ?? globalThis.chrome;
-const DEFAULTS = { enabled: true, allowLinks: false, minimal: true };
+const DEFAULTS = { enabled: true, allowLinks: false, minimal: true, blockMedia: true, blockTracking: true };
 const root = document.documentElement;
 
 // Styles für das Innere (Shadow DOM) von Reddit-Elementen – dort greift normales CSS nicht.
@@ -183,14 +183,37 @@ const isOwn = (n) =>
   n.nodeType !== Node.ELEMENT_NODE ||
   n.classList.contains("rto-meta") ||
   n.classList.contains("rto-show") ||
+  n.classList.contains("rto-selflink") ||
   n.hasAttribute("data-rto");
 
 let loading = document.readyState === "loading";
 const pending = new Set();
 let scheduled = false;
 
+// Auf Subreddit-Seiten einen Link „Nur Text-Posts“ anbieten: Reddits Suche mit
+// self:yes liefert vom Server ausschließlich Text-Posts.
+const SUB_FEED = /^\/r\/([^/]+)\/?(?:hot|new|top|rising|best)?\/?$/;
+
+function updateSelfLink() {
+  const sub = location.pathname.match(SUB_FEED)?.[1];
+  const old = document.querySelector(".rto-selflink");
+  if (old && old.dataset.sub !== sub) old.remove();
+  if (!sub || document.querySelector(".rto-selflink")) return;
+  const target = document.querySelector("#main-content, #siteTable");
+  if (!target) return;
+  const div = document.createElement("div");
+  div.className = "rto-selflink";
+  div.dataset.sub = sub;
+  const a = document.createElement("a");
+  a.href = `/r/${sub}/search/?q=self%3Ayes&restrict_sr=1&sort=new`;
+  a.textContent = `Nur Text-Posts aus r/${sub} (neueste zuerst)`;
+  div.append(a);
+  target.prepend(div);
+}
+
 function flush() {
   scheduled = false;
+  updateSelfLink();
   if (loading) {
     processTree(document);
   } else {
@@ -221,7 +244,9 @@ if (loading) {
     loading = false;
     pending.clear();
     processTree(document);
+    updateSelfLink();
   }, { once: true });
 } else {
   processTree(document);
+  updateSelfLink();
 }

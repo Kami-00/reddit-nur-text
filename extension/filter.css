@@ -89,3 +89,17 @@ html:is([data-rto="strict"], [data-rto="links"]) .rto-show {
   cursor: pointer;
 }
 html:is([data-rto="strict"], [data-rto="links"]) .rto-show:hover { text-decoration: underline; }
+
+/* ===== Link „Nur Text-Posts“ auf Subreddit-Seiten (von content.js eingefügt) ===== */
+
+.rto-selflink { display: none; }
+html:is([data-rto="strict"], [data-rto="links"]) .rto-selflink {
+  display: block;
+  margin: 8px 16px;
+  font-size: 13px;
+}
+html:is([data-rto="strict"], [data-rto="links"]) .rto-selflink a {
+  color: inherit;
+  opacity: .75;
+  text-decoration: underline;
+}
