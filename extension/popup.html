@@ -10,10 +10,18 @@
   label { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
   input { width: 16px; height: 16px; accent-color: #ff4500; }
   .hint { font-size: 12px; opacity: .7; margin-top: 10px; }
+  #access { display: none; margin: 0 0 12px; padding: 8px 10px; border-radius: 6px;
+            background: #fff4e5; color: #663c00; font-size: 12px; }
+  @media (prefers-color-scheme: dark) { #access { background: #3d2a00; color: #ffd8a8; } }
+  #access button { margin-top: 6px; font: inherit; cursor: pointer; }
 </style>
 </head>
 <body>
   <h1>Reddit – Nur Text</h1>
+  <div id="access">
+    Das Add-on darf Reddit noch nicht dauerhaft bearbeiten und wirkt nur nach einem Klick auf dieses Symbol.
+    <br><button type="button" id="grant">Zugriff auf Reddit immer erlauben</button>
+  </div>
   <label><input type="checkbox" id="enabled"> Filter aktiv</label>
   <label><input type="checkbox" id="allowLinks"> Link-Posts auch zeigen</label>
   <label><input type="checkbox" id="minimal"> Minimal-Ansicht</label>

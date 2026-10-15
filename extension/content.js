@@ -70,21 +70,35 @@ function metaLine(score, comments, href) {
 
 const styled = new WeakSet(); // Shadow DOM hat schon unsere Styles
 const handled = new WeakSet(); // Post/Medien schon bearbeitet
-const tries = new WeakMap();
 const NESTED_HOSTS = "reddit-search-large, reddit-search-small";
+
+// Elemente, deren Shadow DOM Reddit noch nicht aufgebaut hat. Das kann auf
+// Post-Seiten mehrere Sekunden dauern; solange es welche gibt, wird alle
+// 300 ms nachgesehen (höchstens 30 s pro Element).
+const waiting = new Map(); // Element → Zeitpunkt, seit dem es wartet
+let waitTimer = 0;
+
+function checkWaiting() {
+  const now = Date.now();
+  for (const [host, since] of waiting) {
+    if (!host.isConnected || now - since > 30000) waiting.delete(host);
+    else styleShadow(host);
+  }
+  if (!waiting.size) {
+    clearInterval(waitTimer);
+    waitTimer = 0;
+  }
+}
 
 function styleShadow(host) {
   if (styled.has(host)) return;
   const sr = host.openOrClosedShadowRoot ?? host.shadowRoot;
   if (!sr) {
-    // Element noch nicht fertig aufgebaut: ein paarmal später erneut versuchen
-    const n = tries.get(host) ?? 0;
-    if (n < 3) {
-      tries.set(host, n + 1);
-      setTimeout(() => styleShadow(host), 200 * 3 ** n);
-    }
+    if (!waiting.has(host)) waiting.set(host, Date.now());
+    if (!waitTimer) waitTimer = setInterval(checkWaiting, 300);
     return;
   }
+  waiting.delete(host);
   styled.add(host);
   const css = Object.entries(SHADOW_CSS)
     .filter(([sel]) => host.matches(sel))
